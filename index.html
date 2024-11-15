@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>Email Builder with Code Editor</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+
+
+</head>
+
+<body>
+    <div class="container">
+        <pre id="codeEditor" class="line-numbers"><code class="language-markup"></code></pre>
+        <div id="preview"></div>
+    </div>
+
+    <div id="buttonEditor" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Button</h2>
+            <div class="form-group">
+                <label for="buttonText">Button Text:</label>
+                <input type="text" id="buttonText" />
+            </div>
+            <div class="form-group">
+                <label for="buttonUrl">Button URL:</label>
+                <input type="text" id="buttonUrl" />
+            </div>
+            <button id="saveButton" class="save-btn">Save Changes</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify-html.min.js"></script>
+</body>
+
+</html>
