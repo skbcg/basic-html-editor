@@ -49,17 +49,45 @@ class EmailBuilder {
         // Make the code block editable
         this.codeContainer.setAttribute('contenteditable', 'true');
 
+        // Set placeholder text if empty
         if (!this.codeContainer.textContent) {
-            this.codeContainer.textContent = '<table><tr><td>Initial content</td></tr></table>';
+            this.codeContainer.textContent = '<!-- Add your HTML email content here -->';
+            this.codeContainer.classList.add('placeholder');
         }
+
+        // Add focus and blur event listeners for placeholder behavior
+        this.codeContainer.addEventListener('focus', () => {
+            if (this.codeContainer.classList.contains('placeholder')) {
+                this.codeContainer.textContent = '';
+                this.codeContainer.classList.remove('placeholder');
+            }
+        });
+
+        this.codeContainer.addEventListener('blur', () => {
+            if (!this.codeContainer.textContent.trim()) {
+                this.codeContainer.textContent = '<!-- Add your HTML email content here -->';
+                this.codeContainer.classList.add('placeholder');
+            }
+        });
 
         this.renderPreview(this.codeContainer.textContent);
         this.setupCodeEditor();
         this.setupDragAndDrop();
+        this.addFormatButton();
 
-        // Initial syntax highlighting
+        // Initial syntax highlighting and formatting
+        const formattedCode = html_beautify(this.codeContainer.textContent, {
+            indent_size: 2,
+            indent_char: ' ',
+            max_preserve_newlines: 1,
+            preserve_newlines: true,
+            indent_inner_html: true
+        });
+        this.codeContainer.textContent = formattedCode;
         Prism.highlightElement(this.codeContainer);
     }
+
+
 
     addScrollToTop() {
         // Create scroll to top button
@@ -712,29 +740,7 @@ class EmailBuilder {
         }, 2000);
     }
 
-    init() {
-        this.codeContainer.setAttribute('contenteditable', 'true');
 
-        if (!this.codeContainer.textContent) {
-            this.codeContainer.textContent = '<table><tr><td>Initial content</td></tr></table>';
-        }
-
-        this.renderPreview(this.codeContainer.textContent);
-        this.setupCodeEditor();
-        this.setupDragAndDrop();
-        this.addFormatButton();
-
-        // Initial syntax highlighting and formatting
-        const formattedCode = html_beautify(this.codeContainer.textContent, {
-            indent_size: 2,
-            indent_char: ' ',
-            max_preserve_newlines: 1,
-            preserve_newlines: true,
-            indent_inner_html: true
-        });
-        this.codeContainer.textContent = formattedCode;
-        Prism.highlightElement(this.codeContainer);
-    }
 }
 
 // Initialize the builder when the DOM is loaded
