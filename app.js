@@ -227,14 +227,21 @@ class EmailBuilder {
     }
 
     processContent() {
-        const mainTableTd = this.preview.querySelector('table[bgcolor="#000000"] > tbody > tr > td');
-        if (!mainTableTd) return;
+        // First, find all tables in the preview
+        const tables = this.preview.querySelectorAll('table');
+        if (!tables.length) return;
 
-        const contentTables = Array.from(mainTableTd.children).filter(child =>
-            child.tagName === 'TABLE' && !child.closest('.draggable-section')
-        );
+        tables.forEach(table => {
+            // Skip if table is already wrapped or is a nested table
+            if (table.closest('.draggable-section')) return;
 
-        contentTables.forEach(table => {
+            // Skip the outermost wrapper table(s)
+            if (!table.parentElement.closest('table')) return;
+
+            // Skip tables that are clearly layout tables (usually have 100% width or no significant content)
+            if (table.getAttribute('width') === '100%' && !table.querySelector('img, p, h1, h2, h3, h4, h5, h6')) return;
+
+            // Create wrapper
             const wrapper = document.createElement('div');
             wrapper.classList.add('draggable-section');
 
@@ -253,6 +260,7 @@ class EmailBuilder {
             wrapper.appendChild(deleteBtn);
             wrapper.appendChild(cloneBtn);
 
+            // Wrap the table
             table.parentNode.insertBefore(wrapper, table);
             wrapper.appendChild(table);
 
