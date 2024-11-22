@@ -304,38 +304,13 @@ class EmailBuilder {
     setupImageEditing(wrapper) {
         const images = wrapper.getElementsByTagName('img');
         Array.from(images).forEach(img => {
-            // Create container for the image
-            const container = document.createElement('div');
-            container.className = 'image-container';
-
-            // Create edit icon
-            const editIcon = document.createElement('span');
-            editIcon.innerHTML = '✏️';
-            editIcon.className = 'image-edit-icon';
-
-            // Wrap image in container
-            img.parentNode.insertBefore(container, img);
-            container.appendChild(img);
-            container.appendChild(editIcon);
-
-            // Setup click handler
-            editIcon.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.openImageEditor(img);
-            });
-        });
-    }
-
-    setupImageEditing(wrapper) {
-        const images = wrapper.getElementsByTagName('img');
-        Array.from(images).forEach(img => {
             // Skip if already setup
             if (img.closest('.image-container')) return;
 
             // Create container for the image
             const container = document.createElement('div');
             container.className = 'image-container';
+            container.dataset.imageId = `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
             // Create edit icon
             const editIcon = document.createElement('span');
@@ -353,56 +328,6 @@ class EmailBuilder {
                 e.stopPropagation();
                 this.openImageEditor(img);
             });
-        });
-    }
-
-    openImageEditor(img) {
-        const modal = document.getElementById('imageEditor');
-        const imageUrl = modal.querySelector('#imageUrl');
-        const imageAlt = modal.querySelector('#imageAlt');
-        const imageWidth = modal.querySelector('#imageWidth');
-        const saveBtn = modal.querySelector('#saveImageButton');
-        const closeBtn = modal.querySelector('.close');
-
-        // Populate current values
-        imageUrl.value = img.src;
-        imageAlt.value = img.alt || '';
-        imageWidth.value = img.getAttribute('width') || '';
-
-        // Show modal
-        modal.style.display = 'block';
-
-        // Handle save
-        const saveHandler = () => {
-            img.src = imageUrl.value;
-            img.alt = imageAlt.value;
-            if (imageWidth.value) {
-                img.setAttribute('width', imageWidth.value);
-            } else {
-                img.removeAttribute('width');
-            }
-            modal.style.display = 'none';
-            this.updateCodeEditor();
-        };
-
-        // Handle close
-        const closeHandler = () => {
-            modal.style.display = 'none';
-        };
-
-        // Remove existing listeners
-        saveBtn.removeEventListener('click', saveHandler);
-        closeBtn.removeEventListener('click', closeHandler);
-
-        // Add new listeners
-        saveBtn.addEventListener('click', saveHandler);
-        closeBtn.addEventListener('click', closeHandler);
-
-        // Close modal when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
         });
     }
 
@@ -520,6 +445,75 @@ class EmailBuilder {
         });
     }
 
+    openImageEditor(img) {
+        const modal = document.getElementById('imageEditor');
+        const imageUrl = modal.querySelector('#imageUrl');
+        const imageAlt = modal.querySelector('#imageAlt');
+        const imageWidth = modal.querySelector('#imageWidth');
+        const saveBtn = modal.querySelector('#saveImageButton');
+        const closeBtn = modal.querySelector('.close');
+
+        // Store reference to the specific image being edited
+        modal.dataset.currentImageId = img.closest('.image-container').dataset.imageId;
+
+        // Populate current values
+        imageUrl.value = img.src;
+        imageAlt.value = img.alt || '';
+        imageWidth.value = img.getAttribute('width') || '';
+
+        // Show modal
+        modal.style.display = 'block';
+
+        // Handle save
+        const saveHandler = () => {
+            // Find the specific image being edited using the stored ID
+            const imageContainer = document.querySelector(`.image-container[data-image-id="${modal.dataset.currentImageId}"]`);
+            if (!imageContainer) return;
+            
+            const targetImg = imageContainer.querySelector('img');
+            if (!targetImg) return;
+
+            targetImg.src = imageUrl.value;
+            targetImg.alt = imageAlt.value;
+            if (imageWidth.value) {
+                targetImg.setAttribute('width', imageWidth.value);
+            } else {
+                targetImg.removeAttribute('width');
+            }
+            
+            modal.style.display = 'none';
+            this.updateCodeEditor();
+            
+            // Clear the current image ID
+            delete modal.dataset.currentImageId;
+        };
+
+        // Handle close
+        const closeHandler = () => {
+            modal.style.display = 'none';
+            // Clear the current image ID
+            delete modal.dataset.currentImageId;
+        };
+
+        // Remove existing listeners
+        saveBtn.removeEventListener('click', saveHandler);
+        closeBtn.removeEventListener('click', closeHandler);
+
+        // Add new listeners
+        saveBtn.addEventListener('click', saveHandler);
+        closeBtn.addEventListener('click', closeHandler);
+
+        // Close modal when clicking outside
+        const windowClickHandler = (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                delete modal.dataset.currentImageId;
+                window.removeEventListener('click', windowClickHandler);
+            }
+        };
+        window.addEventListener('click', windowClickHandler);
+    }
+
     addDragListeners(element) {
         element.setAttribute('draggable', true);
 
@@ -628,31 +622,33 @@ class EmailBuilder {
             container.remove();
         });
 
-        // Format the HTML with modified beautifier options
-        const formattedHtml = html_beautify(tempContainer.innerHTML, {
+        // Get the HTML and strip all existing formatting
+        let cleanHtml = tempContainer.innerHTML
+            .replace(/>\s+</g, '><') // Remove whitespace between tags
+            .replace(/\s+/g, ' ') // Collapse multiple spaces
+            .replace(/^\s+|\s+$/g, '') // Trim start and end
+            .replace(/\n/g, '') // Remove all newlines
+            .replace(/\r/g, ''); // Remove all carriage returns
+
+        // Format the HTML with customized beautifier options
+        const formattedHtml = html_beautify(cleanHtml, {
             indent_size: 2,
             indent_char: ' ',
             max_preserve_newlines: 1,
             preserve_newlines: true,
-            keep_array_indentation: false,
-            break_chained_methods: false,
-            indent_scripts: 'keep',
-            brace_style: 'collapse',
-            space_before_conditional: true,
-            unescape_strings: false,
-            jslint_happy: false,
-            end_with_newline: false,
-            wrap_line_length: 0,
             indent_inner_html: true,
-            comma_first: false,
-            e4x: false,
-            indent_empty_lines: false,
-            wrap_attributes: 'force-aligned',
-            wrap_attributes_min_attrs: 99999,
-            inline: ['a', 'span', 'img', 'code', 'pre', 'sub', 'sup', 'em', 'strong', 'b', 'i', 'u', 'strike', 'big', 'small', 'pre'],
+            indent_scripts: 'normal',
+            wrap_line_length: 0,
+            wrap_attributes: 'auto',
+            wrap_attributes_indent_size: 2,
             unformatted: ['code', 'pre'],
             content_unformatted: ['pre', 'textarea'],
-            extra_liners: ['head', 'body', '/html']
+            extra_liners: ['head', 'body', '/html'],
+            indent_body_inner_html: true,
+            indent_head_inner_html: true,
+            // Special handling for table elements to prevent over-indentation
+            unformatted_content_delimiter: '',
+            inline: ['td', 'th', 'tr'] // Treat these elements as inline to prevent excessive indentation
         });
 
         // Update code editor with formatted HTML

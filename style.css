@@ -21,7 +21,7 @@
     position: relative;
     padding-top: 60px;
     margin: 0;
-    font-size: 14px;
+    font-size: 12px;
     background: #2d2d2d;
     border-radius: 4px;
     overflow-x: hidden;
@@ -37,6 +37,7 @@
     caret-color: white;
     min-height: 500px;
     display: block;
+    font-size: 12px;
 }
 
 /* Scroll to top button */
@@ -74,7 +75,7 @@
     position: relative;
     padding-top: 60px;
     margin: 0;
-    font-size: 14px;
+    font-size: 12px;
     background: #2d2d2d;
     border-radius: 4px;
     width: 100%;
@@ -143,11 +144,6 @@ td {
 .editable:focus {
     background-color: rgba(0, 0, 0, 0.08);
     border-radius: 2px;
-}
-
-.editable[style*="color: #FFFFFF"],
-.editable[style*="color: rgb(255, 255, 255)"] {
-    background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Anchor Styles */
@@ -421,6 +417,7 @@ pre[class*="language-"],
     /* Makes cursor visible */
     min-height: 500px;
     display: block;
+    font-size: 12px;
 }
 
 /* Ensure proper text alignment and cursor behavior */
