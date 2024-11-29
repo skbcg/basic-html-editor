@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    function isEditor() {
+      let userData = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return isSignedIn() && 
+        (userData.role == 'editor' || userData.role == 'admin');
+    }
+
+    function isBlockOwner(blockData) {
+      return isSignedIn() && blockData.createdBy == request.auth.uid;
+    }
+    
+    // User profiles
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() || request.auth.uid == userId;
+    }
+    
+    // Blocks can be read by anyone, but only edited by owners or admins
+    match /blocks/{blockId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin() || isBlockOwner(resource.data);
+    }
+  }
+}

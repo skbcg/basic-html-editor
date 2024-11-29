@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased;
+  }
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+/* Block selection styles */
+.block-selected {
+  @apply relative ring-2 ring-blue-500 ring-offset-2;
+}
+
+.block-selected::before {
+  content: '';
+  @apply absolute -top-1 -left-1 -right-1 -bottom-1 bg-blue-500/5 pointer-events-none;
+}
+
+/* Block editing styles */
+.edit-mode .preview-content * {
+  cursor: move; /* Fallback */
+  cursor: grab;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+}
+
+.edit-mode .preview-content *:hover {
+  outline: 2px dashed #4299e1;
+  outline-offset: 2px;
+}
+
+.edit-mode .preview-content .block-selected {
+  outline: 2px solid #3182ce;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px rgba(49, 130, 206, 0.1);
+}
+
+.edit-mode .preview-content .dragging {
+  opacity: 0.5;
+  cursor: grabbing !important;
+  outline: 2px solid #3182ce;
+  outline-offset: 2px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.edit-mode .preview-content .drag-over {
+  position: relative;
+}
+
+.edit-mode .preview-content .drag-over::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: #3182ce;
+  border-radius: 2px;
+  z-index: 10;
+}
+
+.edit-mode .preview-content .drag-over::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: #3182ce;
+  border-radius: 2px;
+  z-index: 10;
+}
+
+/* Preview content styles */
+.edit-mode .preview-content,
+.edit-mode .preview-content *,
+.edit-mode .preview-content *::before,
+.edit-mode .preview-content *::after {
+  @apply select-none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.edit-mode .preview-content {
+  min-height: 200px;
+  padding: 1rem;
+  position: relative;
+}
+
+.edit-mode .preview-content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  border: 2px dashed #e2e8f0;
+  border-radius: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.edit-mode .preview-content:empty::after {
+  opacity: 1;
+}
+
+.edit-mode .preview-content > * {
+  @apply transition-all duration-200 cursor-pointer hover:outline hover:outline-2 hover:outline-gray-200 hover:outline-offset-2;
+}
