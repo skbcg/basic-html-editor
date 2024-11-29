@@ -168,20 +168,17 @@ function AppContent() {
                   </div>
                 )}
               </div>
-
-            
             </div>
 
-            <div className="absolute left-1/2 transform -translate-x-1/2">
+            <div className="flex items-center justify-center">
               <div className="flex items-center rounded-lg bg-gray-100 p-1">
-
-                   <button
-                onClick={() => setIsGlobalSettingsOpen(true)}
-                className="flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 text-gray-700 hover:bg-gray-200"
-              >
-                <Settings className="w-4 h-4 mr-2 text-gray-500" />
-                Global Settings
-              </button>
+                <button
+                  onClick={() => setIsGlobalSettingsOpen(true)}
+                  className="flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 text-gray-700 hover:bg-gray-200"
+                >
+                  <Settings className="w-4 h-4 mr-2 text-gray-500" />
+                  Global Settings
+                </button>
 
                 <button
                   onClick={() => setIsEditMode(!isEditMode)}
@@ -194,7 +191,7 @@ function AppContent() {
                   <Plus className={`w-4 h-4 mr-2 ${isEditMode ? 'text-blue-500' : 'text-gray-500'}`} />
                   {isEditMode ? "Back to Preview" : "Add Blocks"}
                 </button>
-               
+
                 <button
                   onClick={() => setIsPreviewMode(!isPreviewMode)}
                   className={`flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${
